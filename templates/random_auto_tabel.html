@@ -1,27 +1,69 @@
-<h1> RANDOM CARS</h1>
+{% extends "layout.html" %}
+
+{% block content %}
 
 
-<table>
-    <thead>
-        <tr>
-           <td>Merk:</td>
-           <td>Model:</td>
-           <td>Kleur:</td>
-           <td>Catalogusprijs:</td>
-        </tr>
-    </thead>
-    <tbody>
-        {% for car in car_list %}
-        <tr>
-           <td>{{ car.merk }}</td>
-           <td>{{ car.handelsbenaming }}</td>
-           <td>{{ car.eerste_kleur }}</td>
-           <td>{{ car.catalogusprijs }}</td>
-        </tr>
-        {% endfor %}
 
-    </tbody>
+<!-- ROW 2-->
+<div class="row">
+    <!-- Information -->
+    <div class="col-md-3" align="center">
+        <h1> RANDOM CARS</h1>
+        <p> Gegevens over de auto:</p>
 
-</table>
+    <form class="form-control" method="POST" action="{{ url_for('random_car')}}" role="form">
+        <div class="form-group">
+            <div class="input-group">
+                <select name="brand" class="form-select" aria-label="Default select example">
+                    {% for brand_selection in brands_list %}
+                    <option value={{ brand_selection }}>{{brand_selection}}</option>
+                    {% endfor %}
+                  </select>
+            </div>  
+            <button type="submit" class="btn btn-success">ZOEK</button>
+        </div>
+        
+    </form>
+
+    </div>
 
 
+   
+    <!-- Table -->
+    <div class="col-md-9">
+        {% if car_list is defined %}
+       <p> U heeft gezocht naar <i> {{ brand }}</i></p> 
+       </br>
+        <table class="table table-striped" id="table_cars">
+            <thead>
+                <tr>
+                   <td>Merk:</td>
+                   <td>Model:</td>
+                   <td>Kleur:</td>
+                   <td>Catalogusprijs:</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for car in car_list %}
+                <tr>
+                   <td>{{ car.merk }}</td>
+                   <td>{{ car.handelsbenaming }}</td>
+                   <td>{{ car.eerste_kleur }}</td>
+                   <td>{{ car.catalogusprijs }}</td>
+                </tr>
+                {% endfor %}    
+            </tbody>        
+        </table>
+        {% else %}
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    $(document).ready( function () {
+        $('#table_cars').DataTable();
+    } );
+
+</script>
+
+{% endblock %}
