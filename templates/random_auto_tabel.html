@@ -1,0 +1,27 @@
+<h1> RANDOM CARS</h1>
+
+
+<table>
+    <thead>
+        <tr>
+           <td>Merk:</td>
+           <td>Model:</td>
+           <td>Kleur:</td>
+           <td>Catalogusprijs:</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for car in car_list %}
+        <tr>
+           <td>{{ car.merk }}</td>
+           <td>{{ car.handelsbenaming }}</td>
+           <td>{{ car.eerste_kleur }}</td>
+           <td>{{ car.catalogusprijs }}</td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+
