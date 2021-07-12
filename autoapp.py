@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, flash
 from werkzeug.utils import redirect
 from custom_modules.api_functions import get_car_by_plate, get_random_cars, get_brands_list
 
@@ -20,11 +20,19 @@ app.secret_key = os.environ.get('SECRET_KEY')
 def index():
     return render_template('index.html')
 
-@app.route('/show_car')
+@app.route('/show_car', methods=['GET', 'POST'])
 def show_car():
-    car = get_car_by_plate("TB275F")
-    
-    return render_template('show_car.html', car=car)
+    if request.method == 'POST':
+        kenteken = request.form.get('kenteken').upper().replace(" ","")
+        car = get_car_by_plate(kenteken)
+
+        if car == None:
+            flash(f"Informatie voor kenteken <b>{kenteken}</b> niet kunnen vinden", "alert alert-warning")
+        else:
+            flash(f"Informatie opgehaald voor {car['kenteken']}", "alert alert-success")
+        return render_template('show_car.html', car=car)
+    else:
+        return render_template('show_car.html')
 
 
 @app.route('/random_car', methods=['GET', 'POST'])

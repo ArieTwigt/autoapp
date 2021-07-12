@@ -1,9 +1,39 @@
+
 {% extends 'layout.html' %}
 
 {% block content %}
 
-<p> {{ car.merk }}</p>
-<p> {{ car.kenteken }}</p>
-<p> {{ car.handelsbenaming }}</p>
+{% macro lower_text(text) %}
+    {{ text[0]|lower}}{{text[1:] }}
+{% endmacro %}
+
+
+<div class="row">
+    <div class="col-md-3">
+        <form class="form-control" method="POST" action="{{ url_for('show_car')}}" role="form">
+            <div class="form-group">
+                <div class="input-group">
+                    <input name="kenteken" class="form-select" aria-label="Default select example">
+                </div>  
+                <button type="submit" class="btn btn-success">ZOEK</button>
+            </div>
+            
+        </form>
+        {% include '_flashes.html' %}
+    </div>
+    <div class="col-md-9">
+        {% if car is defined and car is not none %}
+        <div class="card" style="width: 18rem;">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><button type="button" class="btn btn-warning">{{ lower_text(car.kenteken) }} </button></li>
+              <li class="list-group-item">{{ car.handelsbenaming }}</li>
+              <li class="list-group-item">€ {{ car.catalogusprijs }} ,-</li>
+            </ul>
+          </div>
+        {% else %}
+        {% endif %}
+    </div>
+
+</div>
 
 {% endblock %}

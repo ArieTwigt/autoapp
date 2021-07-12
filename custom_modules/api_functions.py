@@ -1,7 +1,9 @@
 import requests
 
 def get_car_by_plate(plate):
-    resp = requests.get("https://opendata.rdw.nl/resource/m9d7-ebf2.json?kenteken=TB725F")
+    resp = requests.get(f"https://opendata.rdw.nl/resource/m9d7-ebf2.json?kenteken={plate}")
+    if len(resp.json()) == 0:
+        return None
     resp_dict = resp.json()
     car  = resp_dict[0]
     return car
