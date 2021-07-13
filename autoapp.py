@@ -1,24 +1,57 @@
 from flask import Flask, render_template, request, flash
 from werkzeug.utils import redirect
 from custom_modules.api_functions import get_car_by_plate, get_random_cars, get_brands_list
-
 import pandas as pd
-
 import sqlite3
+from flask import Flask
+
+from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 import os
 from dotenv import load_dotenv
 
+from forms import LoginForm, RegistrationForm
+from models import User
+
+
+##### Configurations
+
 load_dotenv()
 
 app = Flask(__name__)
-
 app.secret_key = os.environ.get('SECRET_KEY')
 
-# routes
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+###### routes
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    return render_template('login.html', form=form)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    
+    new_user = User(email=form.email)
+    new_user.set_password(form.password)
+    
+    db.session.add(new_user)
+    db.session.commit()
+    
+    return render_template('register.html', form=form)
+
+
 
 @app.route('/show_car', methods=['GET', 'POST'])
 def show_car():

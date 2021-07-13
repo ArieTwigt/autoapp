@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<form action="/login" method="post">
+<p>
+    {{ form.email }}
+    {{ form.password }}
+    {{ form.password2 }}
+    {{ form.submit }}
+</p>
+
+</form>
+
+{% endblock %}
