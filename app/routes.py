@@ -1,59 +1,63 @@
-from flask import Flask, render_template, request, flash
-from werkzeug.utils import redirect
-from custom_modules.api_functions import get_car_by_plate, get_random_cars, get_brands_list
+from flask import render_template, request, flash, redirect, url_for
+from flask_login import current_user, login_user, logout_user, login_required, login_manager
+from app.custom_modules.api_functions import get_car_by_plate, get_random_cars, get_brands_list
 import pandas as pd
 import sqlite3
-from flask import Flask
 
-from flask_login import LoginManager
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-
-import os
-from dotenv import load_dotenv
-
-from forms import LoginForm, RegistrationForm
-from models import User
+from app import app, db
+from app.models import User
+from app.forms import LoginForm, RegistrationForm
 
 
-##### Configurations
-
-load_dotenv()
-
-app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY')
-
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
 
 ###### routes
-
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
+@login_required
 def index():
     return render_template('index.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # if the user is authenticated, open the homepage
+    if current_user.is_authenticated:
+        redirect(url_for('index'))
+    # if the user it not authenticated, present the login form on the login.html template
     form = LoginForm()
+    # if user succesfully logged in, get the user from the form data
+    
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash('Invalid username or password', 'alert alert-danger')
+            return redirect(url_for('login'))
+        login_user(user)
+        return redirect(url_for('index')) 
     return render_template('login.html', form=form)
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
     form = RegistrationForm()
     
-    new_user = User(email=form.email)
-    new_user.set_password(form.password)
+    if form.validate_on_submit():
+        # get the data from the form
+        new_user = User(email=form.email.data)
+        new_user.set_password(form.password.data)
     
-    db.session.add(new_user)
-    db.session.commit()
     
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Congratulations, you are now a registered user!', 'alert alert-success')
+        return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
 
 
 @app.route('/show_car', methods=['GET', 'POST'])
+@login_required
 def show_car():
     if request.method == 'POST':
         kenteken = request.form.get('kenteken').upper().replace(" ","")
@@ -69,6 +73,7 @@ def show_car():
 
 
 @app.route('/random_car', methods=['GET', 'POST'])
+@login_required
 def random_car():
     # setup database connection
     con = sqlite3.connect('database.db')
@@ -103,6 +108,14 @@ def random_car():
         return render_template('random_auto_tabel.html', car_list=car_list, brand=brand, brands_list=brands_list)
     else:
         return render_template('random_auto_tabel.html', brands_list=brands_list)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash("Succesfully logged out", "alert alert-info")
+    return redirect(url_for('index'))
 
 #
 if __name__ == '__main__':

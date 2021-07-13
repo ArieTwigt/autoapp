@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="row"> 
+    <div class="col-md-4">
+    <br>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        {{ form.csrf_token }}
+    <p>
+        {% include '_flashes.html' %}
+        {{ form.email }}
+        {{ form.password }}
+        {{ form.submit }}
+    
+        {% if form.errors %}
+        {{ form.errors }}
+        {% endif %}
+    </p>
+    
+    </form>
+    
+    <p> <a class="btn btn-info"  href="{{ url_for('register') }}">Registreer</a></p>
+</div>
+</div>
+
+
+{% endblock %}
